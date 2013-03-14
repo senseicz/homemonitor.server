@@ -1,99 +1,14 @@
-﻿@model HomeMonitor.Models.TemperatureViewModel
+﻿<h1>
+    Raspberry Pi remote home monitoring project
+</h1>
 
-@section scripts
+<h2>
+    Remote temperature monitoring
+</h2>
+
+<a href="/home/monitor">Monitor page</a>
+
+@if ((bool) ViewBag.IsBDSetUp)
 {
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script src="/Scripts/jquery-1.8.2.min.js" ></script>
-    <script src="/Scripts/jquery.signalR-1.0.1.js"></script>
-    <script src="/signalr/hubs"></script>
-
-    <script type="text/javascript">
-        $(function() {
-            var monitor = $.connection.monitorHub;
-            monitor.client.MeasurementNotification = function(measurementData) {
-                var obj = JSON.parse(measurementData);
-
-                addMeasurementToDataSource(obj.MeasurementDate, obj.Values);
-                drawChart();
-                logActivity(obj);
-            };
-
-            $.connection.hub.start().done(function() {
-            });
-        });
-        
-        function addMeasurementToDataSource(time, sensorArray) {
-            dataSource.splice(1, 1);
-            var newLine = [time];
-            for (var i = 0; i < sensorArray.length; i++)
-            {
-                newLine.push(parseFloat(sensorArray[i].Value.replace(",", ".")));
-            }
-            dataSource.push(newLine);
-        }
-        
-        function logActivity(data) {
-            var logList = $('#measurementNotificationArea ul');
-            if (logList.children().length > 5) {
-                logList["li:last-child"].remove();
-            }
-             
-            logList.prepend("<li>Dorazilo měření v: " + data.MeasurementDate + "</li>");
-        }
-        
-
-        var dataSource = [
-                ['Time', @Html.Raw(Model.Sensors) ],
-                @foreach (var measurement in Model.TimeMeasurements)
-                {
-                    string values = "";
-                    if (measurement.Value.Any())
-                    {
-                        values = measurement.Value.Aggregate(values, (current, val) => current + string.Format("{0},", val));
-                        values = values.TrimEnd(new [] {','});
-                    }
-                    
-                    @:['@measurement.Key', @values],
-                }
-            ];
-
-        google.load("visualization", "1", { packages: ["corechart"] });
-        google.setOnLoadCallback(drawChart);
-
-        function drawChart() {
-            var data = google.visualization.arrayToDataTable(dataSource);
-
-            var options = {
-                title: 'Temperature chart'
-            };
-
-            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-            chart.draw(data, options);
-        }
-    </script>
-    }
-
-
-    <h1>
-        Raspberry Pi remote home monitoring project
-    </h1>
-
-    <h2>
-        Remote temperature monitoring
-    </h2>
-
-    <div class="col-a">
-   
-        <div id="chart_div" style="width: 600px; height: 400px;"></div>
-
-    </div>
-
-    <div class="col-b">
-        <strong>Real time updates notification</strong> <br />
-        <div id="measurementNotificationArea">
-            <ul></ul>
-        </div>    
-    </div>
-
-
-
+    <a href="/home/setup">DB Setup page</a>
+}

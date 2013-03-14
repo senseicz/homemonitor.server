@@ -19,16 +19,28 @@ namespace HomeMonitor.Controllers
                    SqlServerDialect.Provider);
         }
 
-        public void SetupDB()
+        public bool IsDatabaseSetUp()
         {
             using (IDbConnection db = _dbFactory.OpenDbConnection())
             {
-                db.CreateTableIfNotExists<MeasurementType>();
-                db.CreateTableIfNotExists<MeasurementBatch>();
-                db.CreateTableIfNotExists<Measurement>();
+                return db.TableExists("MeasurementType") && db.TableExists("MeasurementBatch") &&
+                       db.TableExists("Measurement");
+            }
+        }
 
-                db.Insert(new MeasurementType {TypeId = 1, Name = "Temperature"});
-                db.Insert(new MeasurementType {TypeId = 2, Name = "Movement" });
+        public void SetupDB()
+        {
+            if (!IsDatabaseSetUp())
+            {
+                using (IDbConnection db = _dbFactory.OpenDbConnection())
+                {
+                    db.CreateTableIfNotExists<MeasurementType>();
+                    db.CreateTableIfNotExists<MeasurementBatch>();
+                    db.CreateTableIfNotExists<Measurement>();
+
+                    db.Insert(new MeasurementType {TypeId = 1, Name = "Temperature"});
+                    db.Insert(new MeasurementType {TypeId = 2, Name = "Movement"});
+                }
             }
         }
 

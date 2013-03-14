@@ -15,7 +15,14 @@ namespace HomeMonitor.Controllers
         
         public ActionResult Index()
         {
-            //_repo.SetupDB();
+            ViewBag.IsBDSetUp = _repo.IsDatabaseSetUp();
+            
+            return View();
+        }
+        
+        public ActionResult Monitor()
+        {
+            
             var model = new TemperatureViewModel()
                 {
                     Batches = _repo.Get10MostRecentsBatches(1).OrderBy(b => b.BatchDate).ToList() //1 = temperature 
@@ -24,8 +31,19 @@ namespace HomeMonitor.Controllers
             return View(model);
         }
 
-        public ActionResult Help()
+        public ActionResult Setup()
         {
+            var dbSetUp = _repo.IsDatabaseSetUp();
+            if (dbSetUp)
+            {
+                ViewBag.Status = "Already exist";
+            }
+            else
+            {
+                _repo.SetupDB();
+                ViewBag.Status = "DB set up successfully";
+            }
+            
             return View();
         }
     }
